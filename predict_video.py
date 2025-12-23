@@ -236,10 +236,10 @@ def main():
         if not os.path.exists(args.video):
             print(f"❌ Video không tồn tại: {args.video}")
             return
-        video_path = args.video
-        print(f"🎬 Xử lý video: {args.video}")
+        video_list = [args.video]
+        print(f"🎬 Xử lý 1 video: {args.video}")
     else:
-        # Tự động lấy video đầu tiên từ input_data/videos
+        # Tự động xử lý tất cả video từ input_data/videos
         import glob
         video_list = glob.glob(f'{args.input_dir}/*.mp4') + glob.glob(f'{args.input_dir}/*.avi') + glob.glob(f'{args.input_dir}/*.mov')
         
@@ -248,23 +248,28 @@ def main():
             print(f"   Vui lòng copy video vào thư mục {args.input_dir} hoặc dùng --video <path>")
             return
         
-        video_path = video_list[0]
         print(f"📂 Tìm thấy {len(video_list)} video trong {args.input_dir}")
-        print(f"🎬 Xử lý video đầu tiên: {os.path.basename(video_path)}")
+        print(f"🚀 Bắt đầu xử lý...")
     
-    predict_video(
-        model_path=args.model,
-        video_path=video_path,
-        output_dir=args.output,
-        conf_threshold=args.conf,
-        head_threshold=args.head_dist,
-        upper_threshold=args.upper_dist,
-        strict_face_only=args.strict_face,
-        save_result=not args.no_save,
-        show_result=not args.no_show,
-        save_frames=not args.no_frames,
-        debug=args.debug
-    )
+    # Xử lý từng video
+    for idx, video_path in enumerate(video_list, 1):
+        print(f"\n{'='*60}")
+        print(f"🎬 [{idx}/{len(video_list)}] Processing: {os.path.basename(video_path)}")
+        print(f"{'='*60}\n")
+        
+        predict_video(
+            model_path=args.model,
+            video_path=video_path,
+            output_dir=args.output,
+            conf_threshold=args.conf,
+            head_threshold=args.head_dist,
+            upper_threshold=args.upper_dist,
+            strict_face_only=args.strict_face,
+            save_result=not args.no_save,
+            show_result=not args.no_show,
+            save_frames=not args.no_frames,
+            debug=args.debug
+        )
 
 if __name__ == "__main__":
     main()
