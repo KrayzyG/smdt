@@ -207,12 +207,13 @@ def main():
     script_dir = Path(__file__).parent
     # Workspace root là 3 cấp trên: BAO_CAO_FINAL/3_PREDICTION_SCRIPTS -> BAO_CAO_FINAL -> smoking_with_yolov8 + aug -> wsf1
     workspace_root = script_dir.parent.parent.parent
-    default_model = workspace_root / 'runs' / 'train' / 'smoking_detection_v7_improved' / 'weights' / 'best.pt'
+    default_model = workspace_root / 'smoking_with_yolov8 + aug' / 'ketquatrain' / 'v7_improved' / 'weights' / 'best.pt'
     
     parser = argparse.ArgumentParser(description='Smoking Detection - Video Prediction')
     parser.add_argument('--model', type=str, default=str(default_model),
                        help='Path to model weights (.pt)')
-    parser.add_argument('--video', type=str, required=True, help='Path to input video')
+    parser.add_argument('--video', type=str, default=None, help='Path to input video (nếu không có sẽ xử lý video đầu tiên trong input_data/videos)')
+    parser.add_argument('--input-dir', type=str, default=str(workspace_root / 'smoking_with_yolov8 + aug' / 'input_data' / 'videos'), help='Input directory chứa video')
     parser.add_argument('--output', type=str, default=str(script_dir / 'results' / 'video'), help='Output directory')
     parser.add_argument('--conf', type=float, default=0.20, help='Confidence threshold (optimal: 0.20 for best mAP50=66.07%% and Cigarette detection)')
     parser.add_argument('--head-dist', type=int, default=80, help='Max distance to face/head to DRAW line (pixels)')
@@ -230,13 +231,31 @@ def main():
         print(f"   Vui lòng train model trước: python train.py")
         return
     
-    if not os.path.exists(args.video):
-        print(f"❌ Video không tồn tại: {args.video}")
-        return
+    # Xử lý video
+    if args.video is not None:
+        # Xử lý 1 video cụ thể
+        if not os.path.exists(args.video):
+            print(f"❌ Video không tồn tại: {args.video}")
+            return
+        video_path = args.video
+        print(f"🎬 Xử lý video: {args.video}")
+    else:
+        # Tự động lấy video đầu tiên từ input_data/videos
+        import glob
+        video_list = glob.glob(f'{args.input_dir}/*.mp4') + glob.glob(f'{args.input_dir}/*.avi') + glob.glob(f'{args.input_dir}/*.mov')
+        
+        if not video_list:
+            print(f"❌ Không tìm thấy video trong {args.input_dir}")
+            print(f"   Vui lòng copy video vào thư mục {args.input_dir} hoặc dùng --video <path>")
+            return
+        
+        video_path = video_list[0]
+        print(f"📂 Tìm thấy {len(video_list)} video trong {args.input_dir}")
+        print(f"🎬 Xử lý video đầu tiên: {os.path.basename(video_path)}")
     
     predict_video(
         model_path=args.model,
-        video_path=args.video,
+        video_path=video_path,
         output_dir=args.output,
         conf_threshold=args.conf,
         head_threshold=args.head_dist,
