@@ -24,13 +24,13 @@ def predict_video(model_path, video_path, output_dir='results/video',
     show_result: Hiển thị video trong quá trình xử lý (default: True)
     """
     # Load model
-    print(f"📦 Loading model: {model_path}")
+    print(f"Loading model: {model_path}")
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = YOLO(model_path)
     model.to(device)
     
-    # Mở video
-    print(f"🎬 Processing video: {video_path}")
+    # Open video
+    print(f"Processing video: {video_path}")
     cap = cv2.VideoCapture(video_path)
     
     if not cap.isOpened():
@@ -43,7 +43,7 @@ def predict_video(model_path, video_path, output_dir='results/video',
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     total_frames = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
     
-    print(f"📊 Video info: {width}x{height} @ {fps}fps, {total_frames} frames")
+    print(f"Video info: {width}x{height} @ {fps}fps, {total_frames} frames")
     
     # Setup output paths
     base_name = Path(video_path).stem
@@ -53,25 +53,23 @@ def predict_video(model_path, video_path, output_dir='results/video',
     # Setup video writer (status sẽ được thêm sau khi xử lý xong)
     if save_result:
         os.makedirs(output_dir, exist_ok=True)
-        # Tạm thời lưu vào temp file
         temp_output = os.path.join(output_dir, f"{timestamp}_temp_{base_name}{ext}")
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(temp_output, fourcc, fps, (width, height))
-        print(f"💾 Processing video...")
+        print(f"Processing video...")
     
     # Setup frames folder
     if save_frames:
         frames_dir = os.path.join(output_dir, f"{base_name}_frames")
         os.makedirs(frames_dir, exist_ok=True)
-        print(f"📁 Frames folder: {frames_dir}")
+        print(f"Frames folder: {frames_dir}")
     
-    # Statistics
     frame_count = 0
     smoking_frames = 0
     start_time = time.time()
     
     print(f"\n{'='*60}")
-    print("🎬 BẮT ĐẦU XỬ LÝ VIDEO")
+    print("START PROCESSING VIDEO")
     print(f"{'='*60}\n")
     
     while cap.isOpened():
@@ -88,35 +86,30 @@ def predict_video(model_path, video_path, output_dir='results/video',
             verbose=False
         )
         
-        # Lọc cigarette detections
         filter_params = get_recommended_thresholds((int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)), 
                                                      int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))))
         results = filter_cigarette_detections(results, debug=False, **filter_params)
         
-        # Phát hiện smoking
         is_smoking, smoking_persons, details = is_smoking_detected(
             results,
             head_threshold=head_threshold,
             upper_threshold=upper_threshold,
             conf_threshold=conf_threshold,
             strict_face_only=strict_face_only,
-            debug=False  # Tắt debug cho video để tránh spam
+            debug=False
         )
         
         if is_smoking:
             smoking_frames += 1
         
-        # Vẽ kết quả
         annotated_frame = results[0].plot()
         
-        # Lưu frame có smoking
         if save_frames and is_smoking:
-            frame_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]  # milliseconds
+            frame_timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
             frame_filename = f"{frame_timestamp}_smoking_frame_{frame_count:04d}.jpg"
             frame_path = os.path.join(frames_dir, frame_filename)
             cv2.imwrite(frame_path, annotated_frame)
         
-        # Thêm label
         label, color = get_smoking_label(is_smoking, details)
         
         font = cv2.FONT_HERSHEY_SIMPLEX
@@ -139,7 +132,6 @@ def predict_video(model_path, video_path, output_dir='results/video',
                     (255, 255, 255),
                     thickness)
         
-        # Thêm frame counter
         counter_text = f"Frame: {frame_count}/{total_frames}"
         cv2.putText(annotated_frame,
                     counter_text,
@@ -149,62 +141,54 @@ def predict_video(model_path, video_path, output_dir='results/video',
                     (255, 255, 255),
                     2)
         
-        # Lưu frame
         if save_result:
             out.write(annotated_frame)
         
-        # Hiển thị
         if show_result:
             cv2.imshow('Smoking Detection - Video', annotated_frame)
             if cv2.waitKey(1) & 0xFF == ord('q'):
-                print("\n⚠️  Đã dừng bởi người dùng")
+                print("\nStopped by user")
                 break
         
-        # Progress
         if frame_count % 30 == 0 or frame_count == total_frames:
             elapsed = time.time() - start_time
             fps_current = frame_count / elapsed if elapsed > 0 else 0
             progress = (frame_count / total_frames) * 100
-            print(f"⏳ Progress: {frame_count}/{total_frames} ({progress:.1f}%) | "
+            print(f"Progress: {frame_count}/{total_frames} ({progress:.1f}%) | "
                   f"FPS: {fps_current:.1f} | Smoking frames: {smoking_frames}")
     
-    # Cleanup
     cap.release()
     if save_result:
         out.release()
     
     cv2.destroyAllWindows()
     
-    # Summary
     total_time = time.time() - start_time
     avg_fps = frame_count / total_time if total_time > 0 else 0
     smoking_percentage = (smoking_frames / frame_count) * 100 if frame_count > 0 else 0
     
-    # Rename file with smoking status based on percentage
     if save_result:
-        status = "smoking" if smoking_percentage >= 5.0 else "non_smoking"  # 5% threshold
+        status = "smoking" if smoking_percentage >= 5.0 else "non_smoking"
         output_path = os.path.join(output_dir, f"{timestamp}_{status}_{base_name}{ext}")
         os.rename(temp_output, output_path)
     
     print(f"\n{'='*60}")
-    print("🎯 KẾT QUẢ XỬ LÝ VIDEO")
+    print("PROCESSING RESULTS")
     print(f"{'='*60}")
-    print(f"  Tổng frames: {frame_count}")
-    print(f"  Frames có smoking: {smoking_frames} ({smoking_percentage:.1f}%)")
-    print(f"  Thời gian xử lý: {total_time:.1f}s")
-    print(f"  FPS trung bình: {avg_fps:.1f}")
+    print(f"  Total frames: {frame_count}")
+    print(f"  Smoking frames: {smoking_frames} ({smoking_percentage:.1f}%)")
+    print(f"  Processing time: {total_time:.1f}s")
+    print(f"  Average FPS: {avg_fps:.1f}")
     if save_result:
-        print(f"  💾 Video đã lưu: {output_path}")
+        print(f"  Video saved: {output_path}")
     if save_frames and smoking_frames > 0:
-        print(f"  📁 Frames đã lưu: {smoking_frames} ảnh trong {frames_dir}")
+        print(f"  Frames saved: {smoking_frames} images in {frames_dir}")
     print(f"{'='*60}\n")
 
 def main():
-    """Main function"""
     import argparse
     from pathlib import Path
     
-    # Auto-detect model path (trong thư mục hiện tại)
     script_dir = Path(__file__).parent
     default_model = script_dir / 'ketquatrain' / 'v7_improved' / 'weights' / 'best.pt'
     
@@ -226,36 +210,32 @@ def main():
     args = parser.parse_args()
     
     if not os.path.exists(args.model):
-        print(f"❌ Model không tồn tại: {args.model}")
-        print(f"   Vui lòng train model trước: python train.py")
+        print(f"Model not found: {args.model}")
+        print(f"   Please train model first: python train.py")
         return
     
-    # Xử lý video
     if args.video is not None:
-        # Xử lý 1 video cụ thể
         if not os.path.exists(args.video):
-            print(f"❌ Video không tồn tại: {args.video}")
+            print(f"Video not found: {args.video}")
             return
         video_list = [args.video]
-        print(f"🎬 Xử lý 1 video: {args.video}")
+        print(f"Processing 1 video: {args.video}")
     else:
-        # Tự động xử lý tất cả video từ input_data/videos
         import glob
         video_list = glob.glob(f'{args.input_dir}/*.mp4') + glob.glob(f'{args.input_dir}/*.avi') + glob.glob(f'{args.input_dir}/*.mov')
         
         if not video_list:
-            print(f"❌ Không tìm thấy video trong {args.input_dir}")
-            print(f"   Vui lòng copy video vào thư mục {args.input_dir} hoặc dùng --video <path>")
+            print(f"No videos found in {args.input_dir}")
+            print(f"   Please copy videos to {args.input_dir} or use --video <path>")
             return
         
-        print(f"📂 Tìm thấy {len(video_list)} video trong {args.input_dir}")
-        print(f"🚀 Bắt đầu xử lý...")
+        print(f"Found {len(video_list)} videos in {args.input_dir}")
+        print(f"Starting processing...")
     
-    # Xử lý từng video
     for idx, video_path in enumerate(video_list, 1):
         print(f"\n{'='*60}")
-        print(f"🎬 [{idx}/{len(video_list)}] Processing: {os.path.basename(video_path)}")
-        print(f"{'='*60}\n")
+        print(f"[{idx}/{len(video_list)}] Processing: {os.path.basename(video_path)}")
+        print(f"{'='*60}\n"))
         
         predict_video(
             model_path=args.model,

@@ -35,16 +35,16 @@ def predict_image(model_path, image_path, output_dir=None,
         output_dir = str(Path(__file__).parent / 'results' / 'image')
     
     # Load model
-    print(f"📦 Loading model: {model_path}")
+    print(f"Loading model: {model_path}")
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     model = YOLO(model_path)
     model.to(device)
     
-    # Đọc ảnh
-    print(f"📷 Processing image: {image_path}")
+    # Read image
+    print(f"Processing image: {image_path}")
     img = cv2.imread(image_path)
     if img is None:
-        print(f"❌ Không thể đọc ảnh: {image_path}")
+        print(f"Cannot read image: {image_path}")
         return
     
     # Dự đoán
@@ -54,11 +54,9 @@ def predict_image(model_path, image_path, output_dir=None,
         verbose=False
     )
     
-    # Lọc cigarette detections để giảm false positives
     if debug:
-        print(f"\n🔍 Lọc cigarette detections...")
+        print(f"\nFiltering cigarette detections...")
     
-    # Lấy recommended thresholds dựa trên kích thước ảnh
     img_height, img_width = img.shape[:2]
     filter_params = get_recommended_thresholds((img_width, img_height))
     
@@ -71,7 +69,6 @@ def predict_image(model_path, image_path, output_dir=None,
     
     results = filter_cigarette_detections(results, debug=debug, **filter_params)
     
-    # Phát hiện smoking
     is_smoking, smoking_persons, details = is_smoking_detected(
         results, 
         head_threshold=head_threshold,
@@ -81,10 +78,8 @@ def predict_image(model_path, image_path, output_dir=None,
         debug=debug
     )
     
-    # Vẽ kết quả
-    annotated_img = results[0].plot()  # Vẽ tất cả detections
+    annotated_img = results[0].plot()
     
-    # Thêm label smoking/non-smoking
     label, color = get_smoking_label(is_smoking, details)
     
     # Vẽ text lớn ở góc trái trên
