@@ -1,0 +1,18 @@
+# Requirements for Smoking Detection System
+
+ultralytics>=8.0.0
+opencv-python>=4.8.0
+torch>=2.0.0
+torchvision>=0.15.0
+numpy>=1.24.0
+matplotlib>=3.7.0
+pillow>=9.5.0
+pyyaml>=6.0
+
+""" # Hướng dẫn cài đặt và sử dụng
+Clone: git clone https://github.com/KrayzyG/smoking-detect.git
+Cài packages: pip install -r requirements.txt
+Dataset nằm trong thư mục smoking_train_image/
+Train hoặc download model weights
+Chạy predict
+"""

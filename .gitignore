@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+
+# VS Code
+.vscode/
+
+# Dataset (quá lớn)
+smoking.v4i.yolov8.2/
+smoking_train_image/
+
+# Results
+results/
+runs/
+
+# Models (quá lớn, có thể download lại)
+*.pt
+!yolov8n.pt
+!yolo11n.pt
+
+# Training results & outputs (quá lớn)
+ketqua/
+ketquatrain/
+
+# Input data (người dùng tự thêm)
+input_data/images/*
+input_data/videos/*
+!input_data/images/.gitkeep
+!input_data/videos/.gitkeep
+
+# Jupyter
+*.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Nested duplicate folder
+smoking_with_yolov8 + aug/
