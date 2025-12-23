@@ -24,9 +24,14 @@ runs/
 !yolov8n.pt
 !yolo11n.pt
 
-# Training results & outputs (quá lớn)
+# Training results & outputs (nhưng giữ lại best model)
 ketqua/
-ketquatrain/
+ketquatrain/*
+!ketquatrain/v7_improved/
+!ketquatrain/v7_improved/weights/
+!ketquatrain/v7_improved/weights/best.pt
+!ketquatrain/v7_improved/args.yaml
+!ketquatrain/v7_improved/MODEL_INFO.md
 
 # Input data (người dùng tự thêm)
 input_data/images/*
