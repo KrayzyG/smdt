@@ -190,7 +190,7 @@ def main():
     from pathlib import Path
     
     script_dir = Path(__file__).parent
-    default_model = script_dir / 'ketquatrain' / 'v7_improved' / 'weights' / 'best.pt'
+    default_model = script_dir / 'ketquatrain' / 'v6_optimized' / 'weights' / 'best.pt'
     
     parser = argparse.ArgumentParser(description='Smoking Detection - Video Prediction')
     parser.add_argument('--model', type=str, default=str(default_model),

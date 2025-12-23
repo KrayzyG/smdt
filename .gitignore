@@ -27,11 +27,11 @@ runs/
 # Training results & outputs (nhưng giữ lại best model)
 ketqua/
 ketquatrain/*
-!ketquatrain/v7_improved/
-!ketquatrain/v7_improved/weights/
-!ketquatrain/v7_improved/weights/best.pt
-!ketquatrain/v7_improved/args.yaml
-!ketquatrain/v7_improved/MODEL_INFO.md
+!ketquatrain/v6_optimized/
+!ketquatrain/v6_optimized/weights/
+!ketquatrain/v6_optimized/weights/best.pt
+!ketquatrain/v6_optimized/args.yaml
+!ketquatrain/v6_optimized/MODEL_INFO.md
 
 # Input data (người dùng tự thêm)
 input_data/images/*

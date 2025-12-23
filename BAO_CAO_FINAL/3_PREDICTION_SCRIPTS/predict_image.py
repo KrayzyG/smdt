@@ -160,7 +160,7 @@ def main():
     script_dir = Path(__file__).parent
     # Workspace root là 3 cấp trên: BAO_CAO_FINAL/3_PREDICTION_SCRIPTS -> BAO_CAO_FINAL -> smoking_with_yolov8 + aug -> wsf1
     workspace_root = script_dir.parent.parent.parent
-    default_model = workspace_root / 'smoking_with_yolov8 + aug' / 'ketquatrain' / 'v7_improved' / 'weights' / 'best.pt'
+    default_model = workspace_root / 'smoking_with_yolov8 + aug' / 'ketquatrain' / 'v6_optimized' / 'weights' / 'best.pt'
     
     parser = argparse.ArgumentParser(description='Smoking Detection - Image Prediction')
     parser.add_argument('--model', type=str, default=str(default_model), 

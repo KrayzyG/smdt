@@ -310,7 +310,7 @@ def main():
     # Auto-detect model path
     script_dir = Path(__file__).parent
     workspace_root = script_dir.parent.parent.parent
-    default_model = workspace_root / 'runs' / 'train' / 'smoking_detection_v7_improved' / 'weights' / 'best.pt'
+    default_model = workspace_root / 'smoking_with_yolov8 + aug' / 'ketquatrain' / 'v6_optimized' / 'weights' / 'best.pt'
     
     parser = argparse.ArgumentParser(description='Smoking Detection - Enhanced Camera Realtime')
     parser.add_argument('--model', type=str, default=str(default_model),
