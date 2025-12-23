@@ -16,11 +16,12 @@ import time
 
 def predict_video(model_path, video_path, output_dir='results/video',
                   conf_threshold=0.3, head_threshold=80, upper_threshold=150,
-                  strict_face_only=False, save_result=True, show_result=False, 
+                  strict_face_only=False, save_result=True, show_result=True, 
                   save_frames=True, debug=False):
     """
     Dự đoán smoking detection trên video
     save_frames: Lưu các frames có smoking vào folder riêng
+    show_result: Hiển thị video trong quá trình xử lý (default: True)
     """
     # Load model
     print(f"📦 Loading model: {model_path}")
@@ -219,7 +220,7 @@ def main():
     parser.add_argument('--head-dist', type=int, default=80, help='Max distance to face/head to DRAW line (pixels)')
     parser.add_argument('--upper-dist', type=int, default=150, help='Max distance to upper body to DETECT (pixels)')
     parser.add_argument('--strict-face', action='store_true', help='Chỉ phát hiện gần mặt (bỏ qua nửa trên cơ thể)')
-    parser.add_argument('--show', action='store_true', help='Show result while processing (default: False)')
+    parser.add_argument('--no-show', action='store_true', help='Do not show result while processing (default: show)')
     parser.add_argument('--no-save', action='store_true', help='Do not save result video')
     parser.add_argument('--no-frames', action='store_true', help='Do not save smoking frames')
     parser.add_argument('--debug', action='store_true', help='Show debug info')
@@ -262,7 +263,7 @@ def main():
         upper_threshold=args.upper_dist,
         strict_face_only=args.strict_face,
         save_result=not args.no_save,
-        show_result=args.show,
+        show_result=not args.no_show,
         save_frames=not args.no_frames,
         debug=args.debug
     )
